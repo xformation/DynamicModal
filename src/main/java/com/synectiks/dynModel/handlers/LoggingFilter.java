@@ -152,13 +152,13 @@ public class LoggingFilter extends OncePerRequestFilter {
 
 	private void logRequestBody(ContentCachingRequestWrapper request, String prefix) {
 		byte[] content = request.getContentAsByteArray();
-		reqLog.setReqContent(new String(content));
+		//reqLog.setReqContent(new String(content));
 		reqLog.setReqContLen(content.length);
 		reqLog.setReqContentType(request.getContentType());
 		reqLog.setReqEncoding(request.getCharacterEncoding());
 		if (content.length > 0) {
-			logContent(content, request.getContentType(), request.getCharacterEncoding(),
-					prefix);
+			reqLog.setReqContent(logContent(content, request.getContentType(),
+					request.getCharacterEncoding(), prefix));
 		}
 	}
 
@@ -180,24 +180,26 @@ public class LoggingFilter extends OncePerRequestFilter {
 		printLines(prefix);
 		log.info("{}", prefix);
 		byte[] content = response.getContentAsByteArray();
-		reqLog.setResContent(new String(content));
+		//reqLog.setResContent(new String(content));
 		reqLog.setResContLen(content.length);
 		reqLog.setResContentType(response.getContentType());
 		reqLog.setResEncoding(response.getCharacterEncoding());
 		if (content.length > 0) {
-			logContent(content, response.getContentType(),
-					response.getCharacterEncoding(), prefix);
+			reqLog.setResContent(logContent(content, response.getContentType(),
+					response.getCharacterEncoding(), prefix));
 		}
 	}
 
-	private void logContent(byte[] content, String contentType, String contentEncoding,
+	private String logContent(byte[] content, String contentType, String contentEncoding,
 			String prefix) {
 		MediaType mediaType = MediaType.valueOf(contentType);
 		boolean visible = VISIBLE_TYPES.stream()
 				.anyMatch(visibleType -> visibleType.includes(mediaType));
+		String cntnt = null;
 		if (visible) {
 			try {
 				String contentString = new String(content, contentEncoding);
+				cntnt = contentString;
 				Stream.of(contentString.split("\r\n|\r|\n")).forEach(line -> {
 					try {
 						printLines(line);
@@ -207,12 +209,18 @@ public class LoggingFilter extends OncePerRequestFilter {
 				});
 				// log.info("{} {}", prefix, line));
 			} catch (UnsupportedEncodingException e) {
+				cntnt = "Unsupported encoding.";
 				log.info("{} [{} bytes content]", prefix, content.length);
 			}
 		} else {
-
+			try {
+				cntnt = new String(content, "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
 			log.info("{} [{} bytes content]", prefix, content.length);
 		}
+		return cntnt;
 	}
 
 	private static ContentCachingRequestWrapper wrapRequest(HttpServletRequest request) {

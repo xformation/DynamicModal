@@ -42,8 +42,8 @@ public class DynModelController {
 			JSONObject json = IUtils.getJSONObject(strJson);
 			Class<?> dynCls = Utils.createDynModels(json, overwrite);
 			if (!IUtils.isNull(dynCls)) {
-				entities = IUtils.getJSONObject("{result: \"success\", clsName: \"" +
-						dynCls.getName() + "\"}");
+				entities = "{result: \"success\", clsName: \"" +
+						dynCls.getName() + "\"}";
 			} else {
 				throw new Exception("Failed to create class form input json!");
 			}

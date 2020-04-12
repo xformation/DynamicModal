@@ -13,6 +13,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.elasticsearch.core.EntityMapper;
+import org.springframework.web.filter.CommonsRequestLoggingFilter;
 
 import com.synectiks.commons.utils.IUtils;
 
@@ -25,6 +26,21 @@ public class DynamicModelApplication {
 	public static void main(String[] args) {
 		params = args;
 		ctx = SpringApplication.run(DynamicModelApplication.class, args);
+	}
+
+	/**
+	 * Method to start loggin all request payloads.
+	 * @return
+	 */
+	@Bean
+	public CommonsRequestLoggingFilter logFilter() {
+		CommonsRequestLoggingFilter filter = new CommonsRequestLoggingFilter();
+		filter.setIncludeQueryString(true);
+		filter.setIncludePayload(true);
+		filter.setMaxPayloadLength(10000);
+		filter.setIncludeHeaders(false);
+		filter.setAfterMessagePrefix("REQUEST DATA : ");
+		return filter;
 	}
 
 	/**

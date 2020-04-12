@@ -12,6 +12,6 @@ import com.synectiks.dynModel.models.PSqlEntity;
  * @author Rajesh Upadhyay
  */
 @Repository
-public interface PsqlRepository extends JpaRepository<PSqlEntity, Long> {
+public interface ReqLogRepository extends JpaRepository<PSqlEntity, Long> {
 
 }

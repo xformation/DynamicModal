@@ -34,16 +34,16 @@ public abstract class PSqlEntity implements Serializable {
 		generator = ATTR_ID_SEQ)
 	protected Long id;
 
-	protected Date createdAt;
+	/*protected Date createdAt;
 	protected Date updatedAt;
 	protected String createdBy;
-	protected String updatedBy;
+	protected String updatedBy;*/
 
 	public Long getId() {
 		return id;
 	}
 
-	public Date getCreatedAt() {
+	/*public Date getCreatedAt() {
 		return createdAt;
 	}
 
@@ -57,13 +57,13 @@ public abstract class PSqlEntity implements Serializable {
 
 	public String getUpdatedBy() {
 		return updatedBy;
-	}
+	}*/
 
 	public void setId(Long id) {
 		this.id = id;
 	}
 
-	public void setCreatedAt(Date createdAt) {
+	/*public void setCreatedAt(Date createdAt) {
 		this.createdAt = createdAt;
 	}
 
@@ -77,5 +77,5 @@ public abstract class PSqlEntity implements Serializable {
 
 	public void setUpdatedBy(String updatedBy) {
 		this.updatedBy = updatedBy;
-	}
+	}*/
 }

@@ -1,5 +1,7 @@
 package com.synectiks.dynModel.controllers;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.codehaus.jettison.json.JSONObject;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.synectiks.commons.utils.IUtils;
 import com.synectiks.dynModel.DynamicModelApplication;
+import com.synectiks.dynModel.handlers.ModalWrapper;
 import com.synectiks.dynModel.repositories.PsqlRepository;
 import com.synectiks.dynModel.utils.Utils;
 
@@ -39,11 +42,13 @@ public class DynModelController {
 			@RequestParam String strJson, @RequestParam boolean overwrite) {
 		Object entities = null;
 		try {
-			JSONObject json = IUtils.getJSONObject(strJson);
-			Class<?> dynCls = Utils.createDynModels(json, overwrite);
+			ModalWrapper wrapper = new ModalWrapper(strJson, overwrite);
+			List<String> dynCls = wrapper.getClasses();
+			//JSONObject json = IUtils.getJSONObject(strJson);
+			//Class<?> dynCls = Utils.createDynModels(json, overwrite);
 			if (!IUtils.isNull(dynCls)) {
-				entities = "{result: \"success\", clsName: \"" +
-						dynCls.getName() + "\"}";
+				entities = "{result: \"success\", classesName: \"" +
+						dynCls + "\"}";
 			} else {
 				throw new Exception("Failed to create class form input json!");
 			}
@@ -59,14 +64,9 @@ public class DynModelController {
 			@RequestParam String strJson) {
 		Object entities = null;
 		try {
-			JSONObject json = IUtils.getJSONObject(strJson);
-			Class<?> dynCls = Utils.createDynModels(json, false);
-			if (!IUtils.isNull(dynCls)) {
-				Object entity = Utils.createAndSaveInnerModels(json);
-				//Object entity = Utils.putDataIntoModel(json);
-				//Utils.loadRepoAndSave(dynCls, entity);
-				//entities = genRepo.save((PSqlEntity) entity);
-				entities = entity;
+			ModalWrapper wrapper = new ModalWrapper(strJson, false, true);
+			if (!IUtils.isNull(wrapper)) {
+				entities = wrapper.getSavedEntities();
 				logger.info("Saved entity: " + IUtils.getStringFromValue(entities));
 			} else {
 				throw new Exception("Class Not Found for input json!");

@@ -49,10 +49,10 @@ public class Utils {
 
 	private static final Logger logger = LoggerFactory.getLogger(Utils.class);
 
-	private static final String CLASSPATH = System.getProperty("java.class.path");
-	private static final String pkg = "com.synectiks.dynModel.models";
-	private static final String src = "src/main/java";
-	private static final String dest = "target/classes";
+	public static final String CLASSPATH = System.getProperty("java.class.path");
+	public static final String pkg = "com.synectiks.dynModel.models";
+	public static final String src = "src/main/java";
+	public static final String dest = "target/classes";
 
 	private static final String input = "{\n" + 
 			"	dir: {\n" + 
@@ -201,7 +201,7 @@ public class Utils {
 		return null;
 	}
 
-	private static Object updateValuesInJavaObject(Object clsObj,
+	public static Object updateValuesInJavaObject(Object clsObj,
 			Map<String, Object> map) {
 		if (!IUtils.isNull(clsObj)) {
 			for (Entry<String, Object> entry : map.entrySet()) {
@@ -325,10 +325,28 @@ public class Utils {
 		return null;
 	}
 
+	/**
+	 * Method to create java class source path on file system.
+	 * @param clsName java class simple name
+	 * @return src path in file system.
+	 */
+	public static String getJavaSrcPath(String clsName) {
+		return getSrcPath(pkg + "." + clsName);
+	}
+
+	/**
+	 * Method to create java class source path on file system.
+	 * @param absName java class full name with package.
+	 * @return
+	 */
+	public static String getSrcPath(String absName) {
+		return src + "/" + absName.replace(".", "/") + ".java";
+	}
+
 	public static Class<?> createModelClass(String clsName,
 			JSONObject json, boolean forceWrite) {
 		String absName = pkg + "." + clsName;
-		String srcPath = src + "/" + pkg.replace(".", "/") + "/" + clsName + ".java";
+		String srcPath = getSrcPath(absName);
 		if (!IUtils.isFileExists(srcPath) || forceWrite) {
 			List<String> keys = IUtils.getJsonKeys(json);
 			/*if (!keys.contains("id")) {

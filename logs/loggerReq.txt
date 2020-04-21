@@ -1,0 +1,39 @@
+0:0:0:0:0:0:0:1|>
+POST
+/dynModel/createModel
+0:0:0:0:0:0:0:1|>
+19AE954FBF5B1F296F725E8A305C45DB
+0:0:0:0:0:0:0:1|<
+201
+Created
+0:0:0:0:0:0:0:1|<
+{result: "success", clsName: "com.synectiks.dynModel.models.Dir"}
+0:0:0:0:0:0:0:1|>
+GET
+/dynModel/restart
+0:0:0:0:0:0:0:1|>
+19AE954FBF5B1F296F725E8A305C45DB
+0:0:0:0:0:0:0:1|<
+200
+OK
+0:0:0:0:0:0:0:1|<
+0:0:0:0:0:0:0:1|>
+POST
+/dynModel/populateData
+0:0:0:0:0:0:0:1|>
+2517822E3B11E89252FEE75FE2E39A08
+0:0:0:0:0:0:0:1|<
+201
+Created
+0:0:0:0:0:0:0:1|<
+{"id":4,"drive":"D","serial":"56DC-72DB","fullPath":"D:\\Projects","dirs":[{"id":5,"modifiedAt":"06-Apr-18  06:09 PM","name":"Docs"},{"id":6,"modifiedAt":"18-Nov-19  12:42 PM","name":"."},{"id":7,"modifiedAt":"18-Nov-19  12:42 PM","name":".."},{"id":8,"modifiedAt":"20-Dec-19  05:33 PM","name":"LMS"},{"id":9,"modifiedAt":"13-Jun-19  11:22 AM","name":"Aws-Git"},{"id":10,"modifiedAt":"26-Dec-19  12:53 PM","name":"Git"},{"id":11,"modifiedAt":"02-May-19  08:48 PM","name":"SVN"},{"id":12,"modifiedAt":"02-May-19  08:48 PM","name":"Samples"},{"id":13,"modifiedAt":"01-Mar-19  12:16 PM","name":"girnarsoft-react-native"}],"files":[{"id":14,"size":"54,619,076","modifiedAt":"12-Mar-18  02:14 AM","name":"AUD-20180312-WA0038.mp3"},{"id":15,"size":"221","modifiedAt":"11-Jun-19  06:11 PM","name":"github-recovery-codes.txt"},{"id":16,"size":"73","modifiedAt":"21-Feb-18  03:59 PM","name":"GitHub-GirnarEmail-Auth-Token.txt"}],"fileCount":"3","filesSize":"54,619,370","dirCount":"9","freeSpace":"51,751,751,680"}
+0:0:0:0:0:0:0:1|>
+POST
+/dynModel/populateData
+0:0:0:0:0:0:0:1|>
+5C3B0D844DC810F3540E879CCA1EBEA7
+0:0:0:0:0:0:0:1|<
+201
+Created
+0:0:0:0:0:0:0:1|<
+{"id":4,"drive":"D","serial":"56DC-72DB","fullPath":"D:\\Projects","dirs":[{"id":11,"modifiedAt":"02-May-19  08:48 PM","name":"SVN"},{"id":12,"modifiedAt":"02-May-19  08:48 PM","name":"Samples"},{"id":10,"modifiedAt":"26-Dec-19  12:53 PM","name":"Git"},{"id":8,"modifiedAt":"20-Dec-19  05:33 PM","name":"LMS"},{"id":9,"modifiedAt":"13-Jun-19  11:22 AM","name":"Aws-Git"},{"id":6,"modifiedAt":"18-Nov-19  12:42 PM","name":"."},{"id":5,"modifiedAt":"06-Apr-18  06:09 PM","name":"Docs"},{"id":13,"modifiedAt":"01-Mar-19  12:16 PM","name":"girnarsoft-react-native"},{"id":7,"modifiedAt":"18-Nov-19  12:42 PM","name":".."}],"files":[{"id":15,"size":"221","modifiedAt":"11-Jun-19  06:11 PM","name":"github-recovery-codes.txt"},{"id":14,"size":"54,619,076","modifiedAt":"12-Mar-18  02:14 AM","name":"AUD-20180312-WA0038.mp3"},{"id":16,"size":"73","modifiedAt":"21-Feb-18  03:59 PM","name":"GitHub-GirnarEmail-Auth-Token.txt"}],"fileCount":"3","filesSize":"54,619,370","dirCount":"9","freeSpace":"51,751,751,680"}

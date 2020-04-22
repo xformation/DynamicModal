@@ -3,6 +3,7 @@
  */
 package com.synectiks.dynModel.handlers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -31,6 +32,7 @@ public class ModalWrapper {
 	private boolean save;
 	private boolean overwrite;
 	private List<String> classes;
+	private List<String> innerClses;
 	private List<Object> savedEntities;
 	private Map<Class<?>, JSONObject> map;
 	
@@ -46,6 +48,9 @@ public class ModalWrapper {
 		this.json = IUtils.getJSONObject(str);
 		this.overwrite = overwrite;
 		this.save = save;
+		this.classes = new ArrayList<>();
+		this.innerClses = new ArrayList<>();
+		this.map = new HashMap<>();
 		this.setClassMap();
 	}
 
@@ -63,10 +68,13 @@ public class ModalWrapper {
 				CTypes type = IUtils.getValueClassType(val);
 				if (type == CTypes.Object) {
 					JSONObject jObj = (JSONObject) val;
+					logger.info("Creating new Class for key: " + key);
 					ModalParser parser = new ModalParser(
 							StringUtils.capitalize(key), jObj, overwrite);
 					classes.add(parser.getFullClassName());
 					map.put(parser.getClazz(), jObj);
+					this.innerClses.addAll(parser.getInnerClasses());
+					
 					if (this.save) {
 						saveEntity(parser.getClazz(), jObj, true);
 					}
@@ -167,5 +175,9 @@ public class ModalWrapper {
 	 */
 	public List<Object> getSavedEntities() {
 		return savedEntities;
+	}
+
+	public List<String> getInnerClasses() {
+		return this.innerClses;
 	}
 }

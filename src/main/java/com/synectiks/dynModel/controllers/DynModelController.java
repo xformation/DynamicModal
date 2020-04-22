@@ -1,5 +1,6 @@
 package com.synectiks.dynModel.controllers;
 
+import java.io.File;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -41,9 +42,11 @@ public class DynModelController {
 	public ResponseEntity<Object> createModel(HttpServletRequest request,
 			@RequestParam String strJson, @RequestParam boolean overwrite) {
 		Object entities = null;
+		List<String> innerClses = null;
 		try {
 			ModalWrapper wrapper = new ModalWrapper(strJson, overwrite);
 			List<String> dynCls = wrapper.getClasses();
+			innerClses = wrapper.getInnerClasses();
 			//JSONObject json = IUtils.getJSONObject(strJson);
 			//Class<?> dynCls = Utils.createDynModels(json, overwrite);
 			if (!IUtils.isNull(dynCls)) {
@@ -53,10 +56,31 @@ public class DynModelController {
 				throw new Exception("Failed to create class form input json!");
 			}
 		} catch (Throwable th) {
+			deleteDynFiles(innerClses);
 			logger.error(th.getMessage(), th);
 			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(th);
 		}
 		return ResponseEntity.status(HttpStatus.CREATED).body(entities);
+	}
+
+	/**
+	 * Delete newly created files if we failed to create.
+	 * @param innerClses
+	 */
+	private void deleteDynFiles(List<String> innerClses) {
+		if (!IUtils.isNull(innerClses)) {
+			for (String absName : innerClses) {
+				try {
+					File f = new File(Utils.getSrcPath(absName));
+					if (f.exists()) {
+						logger.info("Removing file: " + absName);
+						f.delete();
+					}
+				} catch (Exception ex) {
+					logger.error(ex.getMessage(), ex);
+				}
+			}
+		}
 	}
 
 	@RequestMapping(path = "/populateData")

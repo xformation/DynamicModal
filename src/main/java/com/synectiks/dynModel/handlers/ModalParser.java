@@ -5,6 +5,7 @@ package com.synectiks.dynModel.handlers;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.codehaus.jettison.json.JSONObject;
@@ -30,6 +31,7 @@ public class ModalParser {
 	private JSONObject json;
 	private String srcPath;
 	private boolean overwrite;
+	private List<String> innerClses;
 	
 	public ModalParser(String clsName, JSONObject json) {
 		this(clsName, json, false);
@@ -40,6 +42,7 @@ public class ModalParser {
 		this.absName = Utils.pkg + "." + clsName;
 		this.json = json;
 		this.srcPath = Utils.getSrcPath(absName);
+		this.innerClses = new ArrayList<>();
 		createClassModal();
 	}
 
@@ -47,20 +50,26 @@ public class ModalParser {
 	 * Method to create class modal into file system.
 	 */
 	public Class<?> createClassModal() {
+		logger.info("Overwrite: " + overwrite + ", exists: " + isClassExists());
+		logger.info("absName: " + absName);
 		if (overwrite || !isClassExists()) {
 			List<String> keys = IUtils.getJsonKeys(json);
 			createModel(keys);
-			String repoPath = Utils.getSrcPath(cls.getName() + "Repository");
-			Utils.createRepositoryClass(repoPath, getClassName());
+			String repoPath = Utils.getSrcPath(absName + "Repository");
+			Utils.createRepositoryClass(repoPath, clsName);
 			String[] source = new String[] { srcPath , repoPath };
 			boolean success = Utils.compileAllSources(source);
 			if (success) {
 				cls = IUtils.loadClass(absName);
 				DynamicModelApplication.registerBean(cls);
-				cls = IUtils.loadClass(absName + "Repository");
-				DynamicModelApplication.registerBean(cls);
+				Class<?> repo = IUtils.loadClass(absName + "Repository");
+				DynamicModelApplication.registerBean(repo);
 			}
 			logger.info("Compilation res: " + success);
+			this.innerClses.add(getFullClassName());
+		} else {
+			cls = IUtils.loadClass(absName);
+			logger.info("Class found: " + cls.getName());
 		}
 		return cls;
 	}
@@ -99,13 +108,20 @@ public class ModalParser {
 			ModalParser parser = new ModalParser(clz, (JSONObject) val, overwrite);
 			Utils.addField(fileWriter, clsName,
 					parser.getClassName(), key, false, false, true);
+			if (!parser.getInnerClasses().isEmpty()) {
+				this.innerClses.addAll(parser.getInnerClasses());
+			}
 		} else if (CTypes.Array == type) {
 			CTypes tp = IUtils.getArrValType(val);
 			String inClsName = tp.name();
 			if (CTypes.Object == tp) {
 				String clz = StringUtils.capitalize(key);
-				ModalParser parser = new ModalParser(clz, (JSONObject) val, overwrite);
+				ModalParser parser = new ModalParser(clz,
+						(JSONObject) IUtils.getArrFirstVal(val), overwrite);
 				inClsName = parser.getClassName();
+				if (!parser.getInnerClasses().isEmpty()) {
+					this.innerClses.addAll(parser.getInnerClasses());
+				}
 			} else if (CTypes.Array == tp) {
 				// TODO: check if this case (Array of Array's) required.
 				// If we get such object the parse will fail.
@@ -139,5 +155,9 @@ public class ModalParser {
 
 	public String getFullClassName() {
 		return cls.getName();
+	}
+
+	public List<String> getInnerClasses() {
+		return this.innerClses;
 	}
 }

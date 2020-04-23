@@ -50,6 +50,7 @@ public class ModalWrapper {
 		this.save = save;
 		this.classes = new ArrayList<>();
 		this.innerClses = new ArrayList<>();
+		this.savedEntities = new ArrayList<>();
 		this.map = new HashMap<>();
 		this.setClassMap();
 	}
@@ -115,13 +116,13 @@ public class ModalWrapper {
 	 */
 	private Map<String, Object> getInnerObjects(JSONObject jObj) {
 		Map<String, Object> map = null;
-		if (!IUtils.isNull(json)) {
+		if (!IUtils.isNull(jObj)) {
 			@SuppressWarnings("rawtypes")
-			Iterator it = json.keys();
+			Iterator it = jObj.keys();
 			map = new HashMap<>();
 			while (it.hasNext()) {
 				String key = (String) it.next();
-				Object val = json.opt(key);
+				Object val = jObj.opt(key);
 				logger.info("Val: " + val);
 				CTypes type = IUtils.getValueClassType(val);
 				if (type == CTypes.Object) {

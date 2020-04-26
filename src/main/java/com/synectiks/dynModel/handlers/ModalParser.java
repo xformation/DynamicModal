@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ import com.synectiks.dynModel.utils.Utils;
 public class ModalParser {
 
 	private static final Logger logger = LoggerFactory.getLogger(ModalParser.class);
+	private static final String UNIC_KEY = "uniqueKeysList";
 
 	private String absName;
 	private String clsName;
@@ -83,13 +85,48 @@ public class ModalParser {
 			fileWriter.write(Utils.getImportHeaders());
 			fileWriter.write(Utils.getEntity(clsName));
 			for (String key : keys) {
-				addFieldInModel(fileWriter, key, json.opt(key));
+				if (UNIC_KEY.equals(key)) {
+					addUnicExampleObj(fileWriter, json.opt(key));
+				} else {
+					addFieldInModel(fileWriter, key, json.opt(key));
+				}
 			}
 			fileWriter.write("}");
 			fileWriter.flush();
 			fileWriter.close();
 		} catch (IOException ex) {
 			logger.error(ex.getMessage(), ex);
+		}
+	}
+
+	/**
+	 * Method to add a method to create object of type 
+	 * @param fileWriter
+	 * @param val
+	 * @throws IOException 
+	 */
+	private void addUnicExampleObj(FileWriter fileWriter, Object val) throws IOException {
+		CTypes type = IUtils.getValueClassType(val);
+		CTypes tp = IUtils.getArrValType(val);
+		if (CTypes.Array == type && CTypes.String == tp) {
+			JSONArray arr = (JSONArray) val;
+			if (IUtils.isNull(arr) || arr.length() < 1) {
+				return;
+			}
+			fileWriter.write("\n\tpublic " + clsName + " " + Utils.UNIC_METHOD);
+			fileWriter.write("() {\n");
+			fileWriter.write("\t\t" + clsName + " obj = new " + clsName + "();\n");
+			for (int i = 0; i < arr.length(); i++) {
+				String key = arr.optString(i);
+				if (!IUtils.isNullOrEmpty(key)) {
+					fileWriter.write("\t\tobj.set"
+							+ StringUtils.capitalize(key) + "(" + key + ");\n");
+				}
+			}
+			fileWriter.write("\t\treturn obj;\n");
+			fileWriter.write("\t}\n");
+		} else {
+			logger.warn("Invalid value for unique keys list. Expected String Array");
 		}
 	}
 

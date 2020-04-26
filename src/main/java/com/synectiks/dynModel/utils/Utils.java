@@ -33,6 +33,7 @@ import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.util.StringUtils;
@@ -50,65 +51,69 @@ public class Utils {
 	private static final Logger logger = LoggerFactory.getLogger(Utils.class);
 
 	public static final String CLASSPATH = System.getProperty("java.class.path");
+	public static final String UNIC_METHOD = "getUniqueObject";
 	public static final String pkg = "com.synectiks.dynModel.models";
 	public static final String src = "src/main/java";
 	public static final String dest = "target/classes";
 
-	private static final String input = "{\n" + 
+	private static final String input = "{\n" +
 			"	dir: {\n" + 
+			"		\"uniqueKeysList\": [" +
+			"			\"drive\", \"serial\", \"fullPath\"" +
+			"		],\n" +
 			"		\"drive\": \"D\",\n" + 
-			"		\"serial\": \"56DC-72DB\",\n" + 
-			"		\"fullPath\": \"D:\\\\Projects\",\n" + 
-			"		\"dirs\": [\n" + 
-			"			{\n" + 
-			"				\"modifiedAt\": \"18-Nov-19  12:42 PM\",\n" + 
-			"				\"name\": \".\"\n" + 
-			"			}, {\n" + 
-			"				\"modifiedAt\": \"18-Nov-19  12:42 PM\",\n" + 
-			"				\"name\": \"..\"\n" + 
-			"			}, {\n" + 
-			"				\"modifiedAt\": \"13-Jun-19  11:22 AM\",\n" + 
-			"				\"name\": \"Aws-Git\"\n" + 
-			"			}, {\n" + 
-			"				\"modifiedAt\": \"06-Apr-18  06:09 PM\",\n" + 
-			"				\"name\": \"Docs\"\n" + 
-			"			}, {\n" + 
-			"				\"modifiedAt\": \"01-Mar-19  12:16 PM\",\n" + 
-			"				\"name\": \"girnarsoft-react-native\"\n" + 
-			"			}, {\n" + 
-			"				\"modifiedAt\": \"26-Dec-19  12:53 PM\",\n" + 
-			"				\"name\": \"Git\"\n" + 
-			"			}, {\n" + 
-			"				\"modifiedAt\": \"20-Dec-19  05:33 PM\",\n" + 
-			"				\"name\": \"LMS\"\n" + 
-			"			}, {\n" + 
-			"				\"modifiedAt\": \"02-May-19  08:48 PM\",\n" + 
-			"				\"name\": \"Samples\"\n" + 
-			"			}, {\n" + 
-			"				\"modifiedAt\": \"02-May-19  08:48 PM\",\n" + 
-			"				\"name\": \"SVN\"\n" + 
-			"			}\n" + 
-			"		],\n" + 
-			"		\"files\": [\n" + 
-			"			{\n" + 
-			"				\"size\": \"54,619,076\",\n" + 
-			"				\"modifiedAt\": \"12-Mar-18  02:14 AM\",\n" + 
-			"				\"name\": \"AUD-20180312-WA0038.mp3\"\n" + 
-			"			}, {\n" + 
-			"				\"size\": \"73\",\n" + 
-			"				\"modifiedAt\": \"21-Feb-18  03:59 PM\",\n" + 
-			"				\"name\": \"GitHub-GirnarEmail-Auth-Token.txt\"\n" + 
-			"			}, {\n" + 
-			"				\"size\": \"221\",\n" + 
-			"				\"modifiedAt\": \"11-Jun-19  06:11 PM\",\n" + 
-			"				\"name\": \"github-recovery-codes.txt\"\n" + 
-			"			}\n" + 
-			"		],\n" + 
-			"		\"fileCount\": \"3\",\n" + 
-			"		\"filesSize\": \"54,619,370\",\n" + 
-			"		\"dirCount\": \"9\",\n" + 
-			"		\"freeSpace\": \"51,751,751,680\"\n" + 
-			"	}\n" + 
+			"		\"serial\": \"56DC-72DB\",\n" +
+			"		\"fullPath\": \"D:\\\\Projects\",\n" +
+			"		\"dirs\": [\n" +
+			"			{\n" +
+			"				\"modifiedAt\": \"18-Nov-19  12:42 PM\",\n" +
+			"				\"name\": \".\"\n" +
+			"			}, {\n" +
+			"				\"modifiedAt\": \"18-Nov-19  12:42 PM\",\n" +
+			"				\"name\": \"..\"\n" +
+			"			}, {\n" +
+			"				\"modifiedAt\": \"13-Jun-19  11:22 AM\",\n" +
+			"				\"name\": \"Aws-Git\"\n" +
+			"			}, {\n" +
+			"				\"modifiedAt\": \"06-Apr-18  06:09 PM\",\n" +
+			"				\"name\": \"Docs\"\n" +
+			"			}, {\n" +
+			"				\"modifiedAt\": \"01-Mar-19  12:16 PM\",\n" +
+			"				\"name\": \"girnarsoft-react-native\"\n" +
+			"			}, {\n" +
+			"				\"modifiedAt\": \"26-Dec-19  12:53 PM\",\n" +
+			"				\"name\": \"Git\"\n" +
+			"			}, {\n" +
+			"				\"modifiedAt\": \"20-Dec-19  05:33 PM\",\n" +
+			"				\"name\": \"LMS\"\n" +
+			"			}, {\n" +
+			"				\"modifiedAt\": \"02-May-19  08:48 PM\",\n" +
+			"				\"name\": \"Samples\"\n" +
+			"			}, {\n" +
+			"				\"modifiedAt\": \"02-May-19  08:48 PM\",\n" +
+			"				\"name\": \"SVN\"\n" +
+			"			}\n" +
+			"		],\n" +
+			"		\"files\": [\n" +
+			"			{\n" +
+			"				\"size\": \"54,619,076\",\n" +
+			"				\"modifiedAt\": \"12-Mar-18  02:14 AM\",\n" +
+			"				\"name\": \"AUD-20180312-WA0038.mp3\"\n" +
+			"			}, {\n" +
+			"				\"size\": \"73\",\n" +
+			"				\"modifiedAt\": \"21-Feb-18  03:59 PM\",\n" +
+			"				\"name\": \"GitHub-GirnarEmail-Auth-Token.txt\"\n" +
+			"			}, {\n" +
+			"				\"size\": \"221\",\n" +
+			"				\"modifiedAt\": \"11-Jun-19  06:11 PM\",\n" +
+			"				\"name\": \"github-recovery-codes.txt\"\n" +
+			"			}\n" +
+			"		],\n" +
+			"		\"fileCount\": \"3\",\n" +
+			"		\"filesSize\": \"54,619,370\",\n" +
+			"		\"dirCount\": \"9\",\n" +
+			"		\"freeSpace\": \"51,751,751,680\"\n" +
+			"	}\n" +
 			"}";
 
 	public static void main(String[] args) {
@@ -722,11 +727,18 @@ public class Utils {
 			if (repository instanceof JpaRepository) {
 				JpaRepository tmpRepo = ((JpaRepository) repository);
 				if (!isIdExistsInObject(entity)) {
-					List lst = tmpRepo.findAll(Example.of(entity));
+					Object exObj = getExampleObj(dynCls, entity);
+					List lst = tmpRepo.findAll(Example.of(exObj));
 					if (!IUtils.isNull(lst) && lst.size() > 0) {
-						entity = lst.get(0);
+						Object oldObj = lst.get(0);
 						// Found duplicate row
-						logger.warn("Duplicate:: " + IUtils.getStringFromValue(entity));
+						logger.warn("Duplicate:: " + IUtils.getStringFromValue(oldObj));
+						if (hasUnicObjMethod(dynCls, UNIC_METHOD)) {
+							BeanUtils.copyProperties(entity, oldObj, "id");
+							logger.warn("Updated:: " + IUtils.getStringFromValue(oldObj));
+						}
+						// always replace matched object as entity to update it.
+						entity = oldObj;
 					}
 				}
 				if (save) {
@@ -737,6 +749,66 @@ public class Utils {
 			return entity;
 		}
 		return null;
+	}
+
+	/**
+	 * Method to get entity ExampleMatcher object.
+	 * @param dynCls
+	 * @param entity
+	 * @return
+	 */
+	private static Object getExampleObj(Class<?> dynCls, Object entity) {
+		Object exObj = null;
+		if (hasUnicObjMethod(dynCls, UNIC_METHOD)) {
+			exObj = getMethodResult(dynCls, entity, UNIC_METHOD);
+		} else {
+			try {
+				exObj = dynCls.newInstance();
+				BeanUtils.copyProperties(entity, exObj);
+			} catch (InstantiationException | IllegalAccessException e) {
+				// ignore
+			}
+		}
+		logger.info("Example Object: " + IUtils.getStringFromValue(exObj));
+		return exObj;
+	}
+
+	/**
+	 * Method to invoke a method to get result object.
+	 * @param dynCls
+	 * @param entity
+	 * @param mName
+	 * @return
+	 */
+	private static Object getMethodResult(Class<?> dynCls, Object entity,
+			String mName) {
+		try {
+			Method method = dynCls.getDeclaredMethod(mName);
+			return method.invoke(entity);
+		} catch (IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException | NoSuchMethodException
+				| SecurityException e) {
+			logger.error(e.getMessage(), e);
+		}
+		return null;
+	}
+
+	/**
+	 * Method to check if class has unique object method for ExampleMatcher
+	 * @param dynCls
+	 * @param mName 
+	 * @return
+	 */
+	private static boolean hasUnicObjMethod(Class<?> dynCls, String mName) {
+		try {
+			Method method = dynCls.getDeclaredMethod(mName);
+			if (!IUtils.isNull(method)) {
+				return true;
+			}
+		} catch (NoSuchMethodException | SecurityException e) {
+			// ignore
+		}
+		return false;
 	}
 
 	public static Class<?> getJsonValueJavaClass(String key, JSONObject val) {

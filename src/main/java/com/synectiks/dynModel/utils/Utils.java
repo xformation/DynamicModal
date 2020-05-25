@@ -9,7 +9,14 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.chrono.ThaiBuddhistDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -41,6 +48,7 @@ import org.springframework.util.StringUtils;
 import com.synectiks.commons.utils.IUtils;
 import com.synectiks.commons.utils.IUtils.CTypes;
 import com.synectiks.dynModel.DynamicModelApplication;
+import com.synectiks.dynModel.handlers.ClassConfig;
 import com.synectiks.dynModel.models.PSqlEntity;
 
 /**
@@ -51,6 +59,7 @@ public class Utils {
 	private static final Logger logger = LoggerFactory.getLogger(Utils.class);
 
 	public static final String CLASSPATH = System.getProperty("java.class.path");
+	public static final String UNIC_KEY = "uniqueKeysList";
 	public static final String UNIC_METHOD = "getUniqueObject";
 	public static final String pkg = "com.synectiks.dynModel.models";
 	public static final String src = "src/main/java";
@@ -117,12 +126,45 @@ public class Utils {
 			"}";
 
 	public static void main(String[] args) {
+		java.text.NumberFormat nf = java.text.NumberFormat.getInstance();
+		try {
+			logger.info("54619076: " + nf.parse("54619076"));
+			logger.info("54619076.06: " + nf.parse("54619076.06"));
+			logger.info("54,619,076: " + nf.parse("54,619,076"));
+			logger.info("54,619,076.06: " + nf.parse("54,619,076.06"));
+			logger.info("Long: " + nf.parse("54619076").longValue());
+			logger.info("Int: " + nf.parse("54619076").intValue());
+			logger.info("double: " + nf.parse("54619076.06").doubleValue());
+			logger.info("float: " + nf.parse("54619076.06").floatValue());
+			logger.info("long: " + nf.parse("54619076.06").longValue());
+			logger.info("int: " + nf.parse("54619076.06").intValue());
+			logger.info("short: " + nf.parse("54619076.06").shortValue());
+			logger.info("Long: " + nf.parse("54,619,076").longValue());
+			logger.info("int: " + nf.parse("54,619,076").intValue());
+			logger.info("short: " + nf.parse("54,619,076").shortValue());
+			logger.info("double: " + nf.parse("54,619,076.06").doubleValue());
+			logger.info("float: " + nf.parse("54,619,076.06").floatValue());
+			logger.info("long: " + nf.parse("54,619,076.06").longValue());
+			logger.info("int: " + nf.parse("54,619,076.06").intValue());
+			logger.info("short: " + nf.parse("54,619,076.06").shortValue());
+		} catch (ParseException e1) {
+			e1.printStackTrace();
+		}
+		//Date d = new Date();
+		//ThaiBuddhistDate td = ThaiBuddhistDate.now();
+		//SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		//SimpleDateFormat sdful = new SimpleDateFormat("yyyy-MM-dd G z");
+		//logger.info(sdf.format(d));
+		//logger.info(sdful.format(d));
+		//logger.info(td.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+		//logger.info(td.format(DateTimeFormatter.ofPattern("yyyy-MM-dd G")));
+		
 		//logger.info("1.0: " + "1.0".matches("^[\\d\\.,]+$"));
 		//logger.info("1,000: " + "1,000".matches("^[\\d\\.,]+$"));
 		//logger.info("a100: " + "a100".matches("^[\\d\\.,]+$"));
 		//logger.info("12,005.56.565: " + "12,005.56.565".matches("^[\\d\\.,]+$"));
 		//logger.info("4,45,454: " + "4,45,454".matches("^[\\d\\.,]+$"));
-		//System.exit(0);
+		System.exit(0);
 		//boolean success = createDynModels("Hello", pkg);
 		JSONObject json = IUtils.getJSONObject(input);
 		Class<?> lst = createDynModels(json, true);
@@ -358,9 +400,7 @@ public class Utils {
 				keys.add(0, "id");
 			}*/
 			createModel(clsName, srcPath, keys, json, forceWrite);
-			String repoPath = src + "/" + pkg.replace(".", "/") + "/" + clsName
-					+ "Repository.java";
-			createRepositoryClass(repoPath, clsName);
+			String repoPath = createRepository(clsName);
 			String[] source = new String[] { srcPath , repoPath };
 			boolean success = compileAllSources(source);
 			if (success) {
@@ -372,6 +412,13 @@ public class Utils {
 			logger.info("Compilation res: " + success);
 		}
 		return IUtils.loadClass(absName);
+	}
+
+	public static String createRepository(String clsName) {
+		String repoPath = src + "/" + pkg.replace(".", "/") + "/" + clsName
+				+ "Repository.java";
+		createRepositoryClass(repoPath, clsName);
+		return repoPath;
 	}
 
 	public static void createModel(String clsName, String srcPath, List<String> keys,
@@ -400,22 +447,51 @@ public class Utils {
 			createModelClass(clz, (JSONObject) val, forceWrite);
 			addField(fileWriter, cls, clz, key/* , false */, false, false, true);
 		} else if (CTypes.Array == type) {
-			CTypes tp = IUtils.getArrValType(val);
-			String clsName = tp.name();
-			if (CTypes.Object == tp) {
-				String clz = StringUtils.capitalize(key);
-				createModelClass(clz,
-						(JSONObject) IUtils.getArrFirstVal(val), forceWrite);
-				clsName = clz;
-			} else if (CTypes.Array == tp) {
-				// TODO: check if this case (Array of Array's) required.
+			if (UNIC_KEY.equals(key)) {
+				addUnicKeysMethod(fileWriter, cls, val);
+			} else {
+				CTypes tp = IUtils.getArrValType(val);
+				String clsName = tp.name();
+				if (CTypes.Object == tp) {
+					String clz = StringUtils.capitalize(key);
+					createModelClass(clz,
+							(JSONObject) IUtils.getArrFirstVal(val), forceWrite);
+					clsName = clz;
+				} else if (CTypes.Array == tp) {
+					// TODO: check if this case (Array of Array's) required.
+				}
+				addField(fileWriter, cls, clsName, key, false/* , false */, true);
 			}
-			addField(fileWriter, cls, clsName, key, false/* , false */, true);
 		} else if (IUtils.isNull(val) || "null".equalsIgnoreCase((String) val)) {
 			addField(fileWriter, cls, type.name(), key/* , false */, true);
 		} else {
 			addField(fileWriter, cls, type.name(), key);
 		}
+	}
+
+	private static void addUnicKeysMethod(FileWriter fileWriter,
+			String cls, Object val) throws IOException {
+		if (!IUtils.isNull(val) && val instanceof JSONArray) {
+			JSONArray arr = (JSONArray) val;
+			List<String> lst = new ArrayList<>();
+			for (int i = 0; i < arr.length(); i++) {
+				lst.add(arr.optString(i));
+			}
+			addUnicKeysMethod(fileWriter, cls, lst);
+		}
+	}
+
+	public static void addUnicKeysMethod(FileWriter fileWriter,
+			String cls, List<String> arr) throws IOException {
+		fileWriter.write("\n\n\t@JsonIgnore\n");
+		fileWriter.write("\tpublic " + cls + " " + UNIC_METHOD + "() {\n");
+		fileWriter.write("\t\t" + cls + " obj = new " + cls + "();\n");
+		for (String key : arr) {
+			fileWriter.write("\t\tobj.set" +
+					StringUtils.capitalize(key) + "(this." + key + ");\n");
+		}
+		fileWriter.write("\t\treturn obj;\n");
+		fileWriter.write("\t}\n\n");
 	}
 
 	public static String getEntity(String clsName) {
@@ -429,7 +505,8 @@ public class Utils {
 	public static String getImportHeaders() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("package " + pkg + ";\n\n");
-		sb.append("import java.util.Set;\n" +
+		sb.append("import java.util.Date;\n" +
+				"import java.util.Set;\n" +
 				"\n" + 
 				"import javax.persistence.CascadeType;\n" +
 				"import javax.persistence.Column;\n" +
@@ -443,6 +520,7 @@ public class Utils {
 				"import javax.persistence.ManyToOne;\n" +
 				"import javax.persistence.SequenceGenerator;\n" +
 				"import javax.persistence.Table;\n\n" +
+				"import com.fasterxml.jackson.annotation.JsonIgnore;\n" +
 				"import com.synectiks.dynModel.models.PSqlEntity;\n" +
 				"\n");
 		return sb.toString();
@@ -494,7 +572,6 @@ public class Utils {
 			logger.info("EndPos: " + diagnostic.getEndPosition());
 			logger.info("Source: " + diagnostic.getSource());
 			logger.info("Msg: " + diagnostic.getMessage(null));
-
 		}
 		return success;
 	}
@@ -577,21 +654,30 @@ public class Utils {
 	public static void addField(FileWriter fileWriter, String cls, String clsType,
 			String fldName/* , boolean isPrimary */, boolean isNullable,
 			boolean isArray) throws IOException {
-		addField(fileWriter, cls, clsType, fldName/* , isPrimary */, isNullable, isArray, false);
+		addField(fileWriter, cls, clsType, fldName/* , isPrimary */,
+				isNullable, isArray, false);
 	}
 
 	public static void addField(FileWriter fileWriter, String cls, String clsType,
 			String fldName/* , boolean isPrimary */, boolean isNullable,
 			boolean isArray, boolean isInnerClass) throws IOException {
+		addField(fileWriter, cls, clsType, fldName/* , isPrimary */,
+				isNullable, isArray, isInnerClass, 0, null);
+	}
+
+	public static void addField(FileWriter fileWriter, String cls, String clsType,
+			String fldName/* , boolean isPrimary */, boolean isNullable,
+			boolean isArray, boolean isInnerClass, int len, String defVal) throws IOException {
 		String type = addClassField(fileWriter, cls, "private",
-				clsType, fldName/* , isPrimary */, isNullable, isArray, isInnerClass);
+				clsType, fldName/* , isPrimary */, isNullable,
+				isArray, isInnerClass, len, defVal);
 		addGetMethod(fileWriter, "public", type, fldName);
 		addSetMethod(fileWriter, "public", type, fldName);
 	}
 
 	public static String addClassField(FileWriter fileWriter, String cls, String acModi,
 			String clsType, String fldName, /* boolean isPrimary, */ boolean isNullable,
-			boolean isArray, boolean isInnerClass) throws IOException {
+			boolean isArray, boolean isInnerClass, int len, String defVal) throws IOException {
 		logger.info("Add field:\n" + cls + ", " + clsType + ", " + fldName
 				+ ", " + isNullable + ", " + isArray + ", " + isInnerClass);
 		/*if (isPrimary) {
@@ -603,20 +689,66 @@ public class Utils {
 					"		allocationSize = 1)\n" + 
 					"	@GeneratedValue(strategy = GenerationType.SEQUENCE,\n" + 
 					"		generator = ATTR_ID_SEQ)\n");
-		} else*/ if (isNullable) {
-			fileWriter.write("\n\t@Column(nullable = true)\n");
-		} else if (isArray) {
-			if (clsType.equals("String") || clsType.equals("Long") || clsType.equals("Double")) {
-				fileWriter.write("\n\t@ElementCollection(targetClass = " + clsType + ".class)");
-			} else {
-				fileWriter.write("\n\t@ManyToMany(targetEntity = " + clsType
-						+ ".class,\n\t\t\tfetch = FetchType.EAGER, cascade = CascadeType.ALL)\n");
-			}
-			clsType = "Set<" + clsType + ">";
-		} else if (isInnerClass) {
-			fileWriter.write("\n\t@ManyToOne\n");
+		}*/
+		clsType = setColumnAnnotation(fileWriter, isNullable, clsType, len);
+		if (isArray) {
+			clsType = addArrAnnotation(fileWriter, clsType, cls);
 		}
-		fileWriter.write("\t" + acModi + " " + clsType + " " + fldName + ";\n");
+		if (isInnerClass) {
+			fileWriter.write("\n\t@ManyToOne\n");
+			clsType = cls;
+		}
+		fileWriter.write("\t" + acModi + " " + clsType + " " + fldName);
+		if (!IUtils.isNullOrEmpty(defVal)) {
+			fileWriter.write(" = \"" + defVal + "\"");
+		}
+		fileWriter.write(";\n");
+		return clsType;
+	}
+
+	public static String addArrAnnotation(FileWriter fileWriter,
+			String clsType, String cls) throws IOException {
+		if (CTypes.isNativeType(clsType)) {
+			fileWriter.write("\n\t@ElementCollection(targetClass = " + clsType + ".class)");
+		} else {
+			if (CTypes.Object.name().equals(clsType) &&
+					!IUtils.isNullOrEmpty(cls)) {
+				clsType = cls;
+			}
+			fileWriter.write("\n\t@ManyToMany(targetEntity = " + clsType
+					+ ".class,\n\t\t\tfetch = FetchType.EAGER, cascade = CascadeType.ALL)\n");
+		}
+		clsType = "Set<" + clsType + ">";
+		return clsType;
+	}
+
+	public static String setColumnAnnotation(FileWriter fileWriter,
+			boolean isNullable, String clsType, int len) throws IOException {
+		if (!isNullable && len <= 0 && !CTypes.Text.name().equals(clsType)) {
+			return clsType;
+		}
+		fileWriter.write("\n\t@Column(");
+		boolean fAdded = false;
+		if (CTypes.Text.name().equals(clsType)) {
+			fileWriter.write("columnDefinition = \"TEXT\"");
+			clsType = CTypes.String.name();
+			fAdded = true;
+		}
+		if (isNullable) {
+			if (fAdded) {
+				fileWriter.write(", ");
+			} else {
+				fAdded = true;
+			}
+			fileWriter.write("nullable = true");
+		}
+		if (len > 0 && CTypes.String.name().equals(clsType)) {
+			if (fAdded) {
+				fileWriter.write(", ");
+			}
+			fileWriter.write("length = " + len);
+		}
+		fileWriter.write(")\n");
 		return clsType;
 	}
 
@@ -639,6 +771,43 @@ public class Utils {
 		fileWriter.write(StringUtils.capitalize(fldName) + "(");
 		fileWriter.write(clsType + " " + fldName + ") {\n");
 		fileWriter.write("\t\tthis." + fldName + " = " + fldName + ";\n");
+		fileWriter.write("\t}\n");
+	}
+
+	public static void addSetStrDate(FileWriter fileWriter, String dformat,
+			String clsType, String fldName) throws IOException {
+		fileWriter.write("\n\tpublic void " + "set");
+		fileWriter.write(StringUtils.capitalize(fldName) + "(");
+		fileWriter.write("String " + fldName + ") {\n");
+		fileWriter.write("\t\tjava.text.DateFormat df = "
+				+ "new java.text.SimpleDateFormat(\"" + dformat + "\");\n");
+		fileWriter.write("\t\ttry {\n");
+		fileWriter.write("\t\t\tthis." + fldName + " = df.parse(" + fldName + ");\n");
+		fileWriter.write("\t\t} catch (java.text.ParseException e) {\n");
+		fileWriter.write("\t\t\t// ignore it\n");
+		fileWriter.write("\t\t}\n");
+		fileWriter.write("\t}\n");
+	}
+
+	public static void addSetStrNum(FileWriter fileWriter,
+			String clsType, String name) throws IOException {
+		fileWriter.write("\n\tpublic void " + "set");
+		fileWriter.write(StringUtils.capitalize(name) + "(");
+		fileWriter.write("String " + name + ") {\n");
+		fileWriter.write("\t\tjava.text.NumberFormat nf ="
+				+ " java.text.NumberFormat.getInstance();\n");
+		fileWriter.write("\t\ttry {\n");
+		fileWriter.write("\t\t\tthis." + name + " = nf.parse(" + name + ")");
+		if (CTypes.Double.name().equals(clsType)) {
+			fileWriter.write(".doubleValue();\n");
+		} else if (CTypes.Long.name().equals(clsType)) {
+			fileWriter.write(".longValue();\n");
+		} else {
+			fileWriter.write(".intValue();\n");
+		}
+		fileWriter.write("\t\t} catch (java.text.ParseException e) {\n");
+		fileWriter.write("\t\t\t// ignore it\n");
+		fileWriter.write("\t\t}\n");
 		fileWriter.write("\t}\n");
 	}
 
@@ -825,5 +994,57 @@ public class Utils {
 	public static Object getJsonValueJavaObject(String key, JSONObject val) {
 		return IUtils.getObjectFromValue(
 				val.toString(), getJsonValueJavaClass(key, val));
+	}
+
+	public static List<ClassConfig> getClsConfigList(JSONObject json) {
+		List<ClassConfig> classes = new ArrayList<>();
+		if (!IUtils.isNull(json)) {
+			@SuppressWarnings("rawtypes")
+			Iterator it = json.keys();
+			while (it.hasNext()) {
+				String key = (String) it.next();
+				Object val = json.opt(key);
+				logger.info("Val: " + val);
+				CTypes type = IUtils.getValueClassType(val);
+				if (type == CTypes.Object) {
+					JSONObject jObj = (JSONObject) val;
+					ClassConfig cls = IUtils.getObjectFromValue(jObj.toString(), ClassConfig.class);
+					logger.info("Creating new Class for key: " + key);
+					cls.setClassName(StringUtils.capitalize(key));
+					classes.add(cls);
+				} else {
+					logger.warn("Property: " + key + " ignored!");
+				}
+			}
+		}
+		return classes;
+	}
+
+	/**
+	 * Delete newly created files if we failed to create.
+	 * @param innerClses
+	 */
+	public static void deleteDynFiles(String... innerClses) {
+		deleteDynFiles(Arrays.asList(innerClses));
+	}
+
+	/**
+	 * Delete newly created files if we failed to create.
+	 * @param innerClses
+	 */
+	public static void deleteDynFiles(List<String> innerClses) {
+		if (!IUtils.isNull(innerClses)) {
+			for (String absName : innerClses) {
+				try {
+					File f = new File(Utils.getSrcPath(absName));
+					if (f.exists()) {
+						logger.info("Removing file: " + absName);
+						f.delete();
+					}
+				} catch (Exception ex) {
+					logger.error(ex.getMessage(), ex);
+				}
+			}
+		}
 	}
 }

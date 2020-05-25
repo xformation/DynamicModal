@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.synectiks.commons.utils.IUtils;
 import com.synectiks.dynModel.DynamicModelApplication;
+import com.synectiks.dynModel.handlers.ConfigWrapper;
 import com.synectiks.dynModel.handlers.ModalWrapper;
 import com.synectiks.dynModel.repositories.PsqlRepository;
 import com.synectiks.dynModel.utils.Utils;
@@ -36,6 +37,51 @@ public class DynModelController {
 
 	@Autowired
 	private PsqlRepository genRepo;
+
+	/**
+	 * Method to create data models using config objects.
+	 * @param request
+	 * @param config
+	 * <pre>
+	 * {
+	 *	"className": {
+	 *	"fields": [{
+	 *		"key": "key",
+	 *		"type": "String|Text|Integer|Long|Double|Date|Boolean|Object",
+	 *		"default": "value",
+	 *		"isArray": true|false,
+	 *		"clsName": "",
+	 *		"isNullable": true|false,
+	 *		"length": n,
+	 *		"validations": true|false,
+	 *		"isRequire": true|false,
+	 *		"min": n,
+	 *		"max": n,
+	 *		"regex": "^$",
+	 *		"regexMsg": "Regex validation failed",
+	 *		"dateFromat": "dd-MM-YYYY",
+	 *		"isCompositeKeyMem": true|false
+	 *	}]
+	 * }
+	 *}
+	 * </pre>
+	 * @param overwrite
+	 * @return
+	 */
+	@RequestMapping(path = "/create")
+	public ResponseEntity<Object> createConfig(HttpServletRequest request,
+			@RequestParam String config, @RequestParam boolean overwrite) {
+		Object entities = null;
+		try {
+			ConfigWrapper wrapper = new ConfigWrapper(
+					new JSONObject(config), overwrite);
+			entities = wrapper.writeClasses();
+		} catch (Throwable th) {
+			logger.error(th.getMessage(), th);
+			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(th);
+		}
+		return ResponseEntity.status(HttpStatus.CREATED).body(entities);
+	}
 
 	//@SuppressWarnings({ "unchecked", "rawtypes" })
 	@RequestMapping(path = "/createModel")
@@ -56,31 +102,11 @@ public class DynModelController {
 				throw new Exception("Failed to create class form input json!");
 			}
 		} catch (Throwable th) {
-			deleteDynFiles(innerClses);
+			Utils.deleteDynFiles(innerClses);
 			logger.error(th.getMessage(), th);
 			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(th);
 		}
 		return ResponseEntity.status(HttpStatus.CREATED).body(entities);
-	}
-
-	/**
-	 * Delete newly created files if we failed to create.
-	 * @param innerClses
-	 */
-	private void deleteDynFiles(List<String> innerClses) {
-		if (!IUtils.isNull(innerClses)) {
-			for (String absName : innerClses) {
-				try {
-					File f = new File(Utils.getSrcPath(absName));
-					if (f.exists()) {
-						logger.info("Removing file: " + absName);
-						f.delete();
-					}
-				} catch (Exception ex) {
-					logger.error(ex.getMessage(), ex);
-				}
-			}
-		}
 	}
 
 	@RequestMapping(path = "/populateData")

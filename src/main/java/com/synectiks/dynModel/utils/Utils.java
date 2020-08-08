@@ -42,9 +42,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Example;
+import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.util.StringUtils;
 
+import com.synectiks.commons.entities.SourceEntity;
 import com.synectiks.commons.utils.IUtils;
 import com.synectiks.commons.utils.IUtils.CTypes;
 import com.synectiks.dynModel.DynamicModelApplication;
@@ -126,28 +128,34 @@ public class Utils {
 			"}";
 
 	public static void main(String[] args) {
-		java.text.NumberFormat nf = java.text.NumberFormat.getInstance();
+		//java.text.NumberFormat nf = java.text.NumberFormat.getInstance();
 		try {
-			logger.info("54619076: " + nf.parse("54619076"));
-			logger.info("54619076.06: " + nf.parse("54619076.06"));
-			logger.info("54,619,076: " + nf.parse("54,619,076"));
-			logger.info("54,619,076.06: " + nf.parse("54,619,076.06"));
-			logger.info("Long: " + nf.parse("54619076").longValue());
-			logger.info("Int: " + nf.parse("54619076").intValue());
-			logger.info("double: " + nf.parse("54619076.06").doubleValue());
-			logger.info("float: " + nf.parse("54619076.06").floatValue());
-			logger.info("long: " + nf.parse("54619076.06").longValue());
-			logger.info("int: " + nf.parse("54619076.06").intValue());
-			logger.info("short: " + nf.parse("54619076.06").shortValue());
-			logger.info("Long: " + nf.parse("54,619,076").longValue());
-			logger.info("int: " + nf.parse("54,619,076").intValue());
-			logger.info("short: " + nf.parse("54,619,076").shortValue());
-			logger.info("double: " + nf.parse("54,619,076.06").doubleValue());
-			logger.info("float: " + nf.parse("54,619,076.06").floatValue());
-			logger.info("long: " + nf.parse("54,619,076.06").longValue());
-			logger.info("int: " + nf.parse("54,619,076.06").intValue());
-			logger.info("short: " + nf.parse("54,619,076.06").shortValue());
-		} catch (ParseException e1) {
+			Class<SourceEntity> cls = SourceEntity.class;
+			if (cls.isAnnotationPresent(Document.class)) {
+				Document doc = cls.getAnnotation(Document.class);
+				logger.info("index name: " + doc.indexName());
+				logger.info("index type: " + doc.type());
+			}
+//			logger.info("54619076: " + nf.parse("54619076"));
+//			logger.info("54619076.06: " + nf.parse("54619076.06"));
+//			logger.info("54,619,076: " + nf.parse("54,619,076"));
+//			logger.info("54,619,076.06: " + nf.parse("54,619,076.06"));
+//			logger.info("Long: " + nf.parse("54619076").longValue());
+//			logger.info("Int: " + nf.parse("54619076").intValue());
+//			logger.info("double: " + nf.parse("54619076.06").doubleValue());
+//			logger.info("float: " + nf.parse("54619076.06").floatValue());
+//			logger.info("long: " + nf.parse("54619076.06").longValue());
+//			logger.info("int: " + nf.parse("54619076.06").intValue());
+//			logger.info("short: " + nf.parse("54619076.06").shortValue());
+//			logger.info("Long: " + nf.parse("54,619,076").longValue());
+//			logger.info("int: " + nf.parse("54,619,076").intValue());
+//			logger.info("short: " + nf.parse("54,619,076").shortValue());
+//			logger.info("double: " + nf.parse("54,619,076.06").doubleValue());
+//			logger.info("float: " + nf.parse("54,619,076.06").floatValue());
+//			logger.info("long: " + nf.parse("54,619,076.06").longValue());
+//			logger.info("int: " + nf.parse("54,619,076.06").intValue());
+//			logger.info("short: " + nf.parse("54,619,076.06").shortValue());
+		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
 		//Date d = new Date();

@@ -1,6 +1,7 @@
 package com.synectiks.dynModel.handlers;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
@@ -58,6 +59,8 @@ public class LoggingFilter extends OncePerRequestFilter {
 			throws ServletException, IOException {
 		try {
 			reqLog = new ReqLog();
+			// Check if we have file at path
+			checkPathExists();
 			writer = Files.newBufferedWriter(path, Charset.forName("UTF-8"),
 					StandardOpenOption.APPEND);
 			if (isAsyncDispatch(request)) {
@@ -66,8 +69,12 @@ public class LoggingFilter extends OncePerRequestFilter {
 				doFilterWrapped(wrapRequest(request), wrapResponse(response),
 						filterChain);
 			}
+		} catch( Exception ex ) {
+			logger.error( ex.getMessage(), ex);
 		} finally {
-			writer.close();
+			if (IUtils.isNull(writer)) {
+				writer.close();
+			}
 		}
 	}
 
@@ -237,6 +244,14 @@ public class LoggingFilter extends OncePerRequestFilter {
 			return (ContentCachingResponseWrapper) response;
 		} else {
 			return new ContentCachingResponseWrapper(response);
+		}
+	}
+
+	private static void checkPathExists() throws IOException {
+		File f = path.toFile();
+		if (!f.exists()) {
+			f.getParentFile().mkdirs();
+			f.createNewFile();
 		}
 	}
 }

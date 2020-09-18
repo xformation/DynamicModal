@@ -81,6 +81,7 @@ public class ModalWrapper {
 					}
 				} else {
 					logger.warn("Property: " + key + " ignored!");
+					logger.error(key + " type is " + type + " should be Object!");
 				}
 			}
 		}

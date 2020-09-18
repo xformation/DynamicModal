@@ -12,11 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.commons.utils.IUtils;
 import com.synectiks.dynModel.DynamicModelApplication;
 import com.synectiks.dynModel.handlers.ConfigWrapper;
@@ -83,12 +85,38 @@ public class DynModelController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(entities);
 	}
 
+	@RequestMapping(path = "/createModelByJson")
+	public ResponseEntity<Object> createByJson(@RequestBody String entity) {
+		Object entities = null;
+		List<String> innerClses = null;
+		logger.info("json: " + entity);
+		try {
+			ModalWrapper wrapper = new ModalWrapper(entity, false);
+			List<String> dynCls = wrapper.getClasses();
+			innerClses = wrapper.getInnerClasses();
+			//JSONObject json = IUtils.getJSONObject(strJson);
+			//Class<?> dynCls = Utils.createDynModels(json, overwrite);
+			if (!IUtils.isNull(dynCls)) {
+				entities = "{result: \"success\", classesName: \"" +
+						dynCls + "\"}";
+			} else {
+				throw new Exception("Failed to create class form input json!");
+			}
+		} catch (Throwable th) {
+			Utils.deleteDynFiles(innerClses);
+			logger.error(th.getMessage(), th);
+			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(th);
+		}
+		return ResponseEntity.status(HttpStatus.CREATED).body(entities);
+	}
+
 	//@SuppressWarnings({ "unchecked", "rawtypes" })
 	@RequestMapping(path = "/createModel")
 	public ResponseEntity<Object> createModel(HttpServletRequest request,
 			@RequestParam String strJson, @RequestParam boolean overwrite) {
 		Object entities = null;
 		List<String> innerClses = null;
+		logger.info("json: " + strJson);
 		try {
 			ModalWrapper wrapper = new ModalWrapper(strJson, overwrite);
 			List<String> dynCls = wrapper.getClasses();

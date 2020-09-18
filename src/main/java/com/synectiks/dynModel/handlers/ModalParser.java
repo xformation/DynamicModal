@@ -140,6 +140,7 @@ public class ModalParser {
 	private void addFieldInModel(
 			FileWriter fileWriter, String key, Object val) throws IOException {
 		CTypes type = IUtils.getValueClassType(val);
+		logger.info(key + "-(" + type + "): " + val);
 		if (CTypes.Object == type) {
 			String clz = StringUtils.capitalize(key);
 			ModalParser parser = new ModalParser(clz, (JSONObject) val, overwrite);
@@ -150,6 +151,9 @@ public class ModalParser {
 			}
 		} else if (CTypes.Array == type) {
 			CTypes tp = IUtils.getArrValType(val);
+			if (IUtils.isNull(tp)) {
+				return;
+			}
 			String inClsName = tp.name();
 			if (CTypes.Object == tp) {
 				String clz = StringUtils.capitalize(key);
@@ -167,9 +171,12 @@ public class ModalParser {
 				logger.warn("Found an array type of: " + inClsName);
 			}
 			Utils.addField(fileWriter, clsName, inClsName, key, false/* , false */, true);
-		} else if (IUtils.isNull(val) || "null".equalsIgnoreCase((String) val)) {
-			Utils.addField(fileWriter, clsName, type.name(), key/* , false */, true);
 		} else {
+			String v = String.valueOf(val);
+			if (IUtils.isNull(val) || IUtils.isNullOrEmpty(v) ||
+					"null".equalsIgnoreCase(v.trim())) {
+				return;
+			}
 			Utils.addField(fileWriter, clsName, type.name(), key);
 		}
 	}

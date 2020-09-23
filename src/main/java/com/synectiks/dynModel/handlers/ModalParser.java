@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.synectiks.commons.utils.IUtils;
 import com.synectiks.commons.utils.IUtils.CTypes;
 import com.synectiks.dynModel.DynamicModelApplication;
@@ -113,6 +114,7 @@ public class ModalParser {
 			if (IUtils.isNull(arr) || arr.length() < 1) {
 				return;
 			}
+			fileWriter.write("\n\t@JsonIgnore");
 			fileWriter.write("\n\tpublic " + clsName + " " + Utils.UNIC_METHOD);
 			fileWriter.write("() {\n");
 			fileWriter.write("\t\t" + clsName + " obj = new " + clsName + "();\n");

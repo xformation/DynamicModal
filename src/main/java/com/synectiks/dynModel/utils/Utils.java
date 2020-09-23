@@ -703,8 +703,9 @@ public class Utils {
 			clsType = addArrAnnotation(fileWriter, clsType, cls);
 		}
 		if (isInnerClass) {
-			fileWriter.write("\n\t@ManyToOne\n");
-			clsType = cls;
+			fileWriter.write("\n\t@ManyToOne(cascade = CascadeType.PERSIST)\n");
+			//Below line commented because its causing issue in mappings.
+			//clsType = cls;
 		}
 		fileWriter.write("\t" + acModi + " " + clsType + " " + fldName);
 		if (!IUtils.isNullOrEmpty(defVal)) {
@@ -926,6 +927,48 @@ public class Utils {
 			return entity;
 		}
 		return null;
+	}
+
+	/**
+	 * Method to return list of all object from repository
+	 * @param <T>
+	 * @param clz
+	 * @return
+	 */
+	public static <T> List<T> loadRepoGetAllList(Class<T> clz) {
+		List<T> entities = null;
+		if (!IUtils.isNull(clz)) {
+			String repo = clz.getPackage().getName() + "." + clz.getSimpleName() + "Repository";
+			Class<?> repoCls = IUtils.getClass(repo);
+			Object repository = DynamicModelApplication.getBean(repoCls);
+			if (repository instanceof JpaRepository) {
+				JpaRepository tmpRepo = ((JpaRepository) repository);
+				entities = tmpRepo.findAll();
+			}
+		}
+		logger.info("Item: " + IUtils.getStringFromValue(entities));
+		return entities;
+	}
+
+	/**
+	 * Method to return list of all object from repository
+	 * @param <T>
+	 * @param clz
+	 * @return
+	 */
+	public static <T> T loadRepoGetById(Class<T> clz, Object id) {
+		T entity = null;
+		if (!IUtils.isNull(clz)) {
+			String repo = clz.getPackage().getName() + "." + clz.getSimpleName() + "Repository";
+			Class<?> repoCls = IUtils.getClass(repo);
+			Object repository = DynamicModelApplication.getBean(repoCls);
+			if (repository instanceof JpaRepository) {
+				JpaRepository tmpRepo = ((JpaRepository) repository);
+				entity = (T) tmpRepo.findById(id);
+			}
+		}
+		logger.info("Item: " + IUtils.getStringFromValue(entity));
+		return entity;
 	}
 
 	/**

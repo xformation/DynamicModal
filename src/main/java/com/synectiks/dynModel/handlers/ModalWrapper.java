@@ -65,7 +65,7 @@ public class ModalWrapper {
 			while (it.hasNext()) {
 				String key = (String) it.next();
 				Object val = json.opt(key);
-				logger.info("Val: " + val);
+				logger.info(key + ": " + val);
 				CTypes type = IUtils.getValueClassType(val);
 				if (type == CTypes.Object) {
 					JSONObject jObj = (JSONObject) val;
@@ -101,7 +101,8 @@ public class ModalWrapper {
 			String str = IUtils.getStringFromValue(jObj);
 			clsObj = IUtils.getObjectFromValue(str, clz);
 			clsObj = Utils.updateValuesInJavaObject(clsObj, inCls);
-			logger.info("final Object: " + IUtils.getStringFromValue(clsObj));
+			logger.info(clz.getSimpleName() +
+					"\nfinal Object: " + IUtils.getStringFromValue(clsObj));
 			clsObj = Utils.loadRepoAndSave(clz, clsObj, save);
 			if (save) {
 				savedEntities.add(clsObj);
@@ -124,7 +125,7 @@ public class ModalWrapper {
 			while (it.hasNext()) {
 				String key = (String) it.next();
 				Object val = jObj.opt(key);
-				logger.info("Val: " + val);
+				logger.info(key + "-Val: " + val);
 				CTypes type = IUtils.getValueClassType(val);
 				if (type == CTypes.Object) {
 					Class<?> clz = Utils.getJsonValueJavaClass(

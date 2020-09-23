@@ -14,17 +14,17 @@ public class ReqLog extends PSqlEntity {
 	private String reqMethod;
 	private String reqUri;
 	private String reqQueryStr;
-	@Column(columnDefinition = "TEXT")
+	@Column(length = 1048576)
 	private String reqHeaders;
 	private String reqSessionId;
-	@Column(columnDefinition = "TEXT")
+	@Column(length = 1048576)
 	private String reqContent;
 	private String reqContentType;
 	private String reqEncoding;
 	private String resStatus;
-	@Column(columnDefinition = "TEXT")
+	@Column(length = 1048576)
 	private String resHeaders;
-	@Column(columnDefinition = "TEXT")
+	@Column(length = 1048576)
 	private String resContent;
 	private String resContentType;
 	private String resEncoding;

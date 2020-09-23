@@ -86,28 +86,9 @@ public class DynModelController {
 	}
 
 	@RequestMapping(path = "/createModelByJson")
-	public ResponseEntity<Object> createByJson(@RequestBody String entity) {
-		Object entities = null;
-		List<String> innerClses = null;
-		logger.info("json: " + entity);
-		try {
-			ModalWrapper wrapper = new ModalWrapper(entity, false);
-			List<String> dynCls = wrapper.getClasses();
-			innerClses = wrapper.getInnerClasses();
-			//JSONObject json = IUtils.getJSONObject(strJson);
-			//Class<?> dynCls = Utils.createDynModels(json, overwrite);
-			if (!IUtils.isNull(dynCls)) {
-				entities = "{result: \"success\", classesName: \"" +
-						dynCls + "\"}";
-			} else {
-				throw new Exception("Failed to create class form input json!");
-			}
-		} catch (Throwable th) {
-			Utils.deleteDynFiles(innerClses);
-			logger.error(th.getMessage(), th);
-			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(th);
-		}
-		return ResponseEntity.status(HttpStatus.CREATED).body(entities);
+	public ResponseEntity<Object> createByJson(HttpServletRequest request,
+			@RequestBody String entity) {
+		return createModel(request, entity, false);
 	}
 
 	//@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -167,5 +148,25 @@ public class DynModelController {
 		});
 		restartThread.setDaemon(false);
 		restartThread.start();
+	}
+
+	@RequestMapping(path = "/getAll", method = RequestMethod.GET)
+	public ResponseEntity<Object> getAll(String cls) {
+		Object result = null;
+		if (!IUtils.isNullOrEmpty(cls)) {
+			Class<?> clz = IUtils.loadClass(cls);
+			result = Utils.loadRepoGetAllList(clz);
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(result);
+	}
+
+	@RequestMapping(path = "/getOne", method = RequestMethod.GET)
+	public ResponseEntity<Object> getOne(String cls, Long id) {
+		Object result = null;
+		if (!IUtils.isNullOrEmpty(cls)) {
+			Class<?> clz = IUtils.loadClass(cls);
+			result = Utils.loadRepoGetById(clz, id);
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(result);
 	}
 }

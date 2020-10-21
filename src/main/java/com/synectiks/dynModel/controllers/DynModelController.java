@@ -1,6 +1,5 @@
 package com.synectiks.dynModel.controllers;
 
-import java.io.File;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.commons.utils.IUtils;
 import com.synectiks.dynModel.DynamicModelApplication;
 import com.synectiks.dynModel.handlers.ConfigWrapper;
@@ -37,9 +35,6 @@ public class DynModelController {
 	private static final Logger logger = LoggerFactory
 			.getLogger(DynModelController.class);
 
-	@Autowired
-	private PsqlRepository genRepo;
-
 	/**
 	 * Method to create data models using config objects.
 	 * @param request
@@ -47,6 +42,8 @@ public class DynModelController {
 	 * <pre>
 	 * {
 	 *	"className": {
+	 *	"cloudName": "AWS, AZure, Kubernete ...",
+	 *	"groupName": "Networking, Cloud ...",
 	 *	"fields": [{
 	 *		"key": "key",
 	 *		"type": "String|Text|Integer|Long|Double|Date|Boolean|Object",

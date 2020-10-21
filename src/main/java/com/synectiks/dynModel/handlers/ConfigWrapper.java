@@ -10,6 +10,10 @@ import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.synectiks.commons.entities.CloudEntity;
+import com.synectiks.commons.utils.IUtils;
+import com.synectiks.dynModel.DynamicModelApplication;
+import com.synectiks.dynModel.repositories.CloudEntityRepository;
 import com.synectiks.dynModel.utils.Utils;
 
 /**
@@ -47,6 +51,7 @@ public class ConfigWrapper {
 		for (ClassConfig config : classes) {
 			String srcPath = config.writeClass(overwrite);
 			clzes.add(srcPath);
+			setCloudEntityModel(config);
 			//absCls.add(Utils.pkg + "." + config.getClassName());
 			String repoPath = Utils.createRepository(config.getClassName());
 			srcs.add(srcPath);
@@ -62,6 +67,26 @@ public class ConfigWrapper {
 //			}
 //		}
 		return clzes;
+	}
+
+	/**
+	 * Method to check if class is part of cloud entity then add it in required group.
+	 * @param config
+	 */
+	private void setCloudEntityModel(ClassConfig conf) {
+		if (!IUtils.isNullOrEmpty(conf.getCloudName()) &&
+				!IUtils.isNullOrEmpty(conf.getGroupName())) {
+			CloudEntity entity = new CloudEntity();
+			entity.setCloudName(conf.getCloudName());
+			entity.setGroupName(conf.getGroupName());
+			entity.setEntity(Utils.pkg + "." + conf.getClassName());
+			CloudEntityRepository repo = DynamicModelApplication.getBean(CloudEntityRepository.class);
+			try {
+				repo.save(entity);
+			} catch (Exception ex) {
+				logger.error(ex.getMessage(), ex);
+			}
+		}
 	}
 
 }

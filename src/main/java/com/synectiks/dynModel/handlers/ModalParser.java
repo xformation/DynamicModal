@@ -15,9 +15,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.synectiks.commons.entities.CloudEntity;
 import com.synectiks.commons.utils.IUtils;
 import com.synectiks.commons.utils.IUtils.CTypes;
 import com.synectiks.dynModel.DynamicModelApplication;
+import com.synectiks.dynModel.repositories.CloudEntityRepository;
 import com.synectiks.dynModel.utils.Utils;
 
 /**
@@ -85,6 +87,11 @@ public class ModalParser {
 		try (FileWriter fileWriter = new FileWriter(srcPath, false)) {
 			fileWriter.write(Utils.getImportHeaders());
 			fileWriter.write(Utils.getEntity(clsName));
+			if(keys.contains("cloudName")) {
+				addCloudEntity(keys);
+				keys.remove("cloudName");
+				keys.remove("groupName");
+			}
 			for (String key : keys) {
 				if (UNIC_KEY.equals(key)) {
 					addUnicExampleObj(fileWriter, json.opt(key));
@@ -97,6 +104,28 @@ public class ModalParser {
 			fileWriter.close();
 		} catch (IOException ex) {
 			logger.error(ex.getMessage(), ex);
+		}
+	}
+
+	/**
+	 * Method to add cloud entity mapping into database
+	 * @param keys
+	 */
+	private void addCloudEntity(List<String> keys) {
+		String cld = json.optString("cloudName");
+		String grp = json.optString("groupName");
+		if (!IUtils.isNullOrEmpty(cld) &&
+				!IUtils.isNullOrEmpty(grp)) {
+			CloudEntity entity = new CloudEntity();
+			entity.setCloudName(cld);
+			entity.setGroupName(grp);
+			entity.setEntity(absName);
+			CloudEntityRepository repo = DynamicModelApplication.getBean(CloudEntityRepository.class);
+			try {
+				repo.save(entity);
+			} catch (Exception ex) {
+				logger.error(ex.getMessage(), ex);
+			}
 		}
 	}
 

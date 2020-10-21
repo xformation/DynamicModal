@@ -18,6 +18,8 @@ import com.synectiks.dynModel.utils.Utils;
 public class ClassConfig {
 
 	private String className;
+	private String cloudName;
+	private String groupName;
 	private List<FieldConfig> fields;
 
 	public String getClassName() {
@@ -26,6 +28,22 @@ public class ClassConfig {
 
 	public void setClassName(String className) {
 		this.className = className;
+	}
+
+	public String getCloudName() {
+		return cloudName;
+	}
+
+	public void setCloudName(String cloudName) {
+		this.cloudName = cloudName;
+	}
+
+	public String getGroupName() {
+		return groupName;
+	}
+
+	public void setGroupName(String groupName) {
+		this.groupName = groupName;
 	}
 
 	public List<FieldConfig> getFields() {

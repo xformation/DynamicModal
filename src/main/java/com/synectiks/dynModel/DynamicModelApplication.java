@@ -9,8 +9,10 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.elasticsearch.core.EntityMapper;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
@@ -18,6 +20,8 @@ import org.springframework.web.filter.CommonsRequestLoggingFilter;
 import com.synectiks.commons.utils.IUtils;
 
 @SpringBootApplication
+@EntityScan(basePackages = "com.synectiks")
+@ComponentScan(basePackages = { "com.synectiks" })
 public class DynamicModelApplication {
 
 	private static ConfigurableApplicationContext ctx;

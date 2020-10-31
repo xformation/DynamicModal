@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -45,6 +47,22 @@ public class CloudEntityController {
 		Object entities = null;
 		try {
 			entities = repository.findByOrderAndSort();
+			//entities = this.getSurveyEntityResult(request, list);
+		} catch (Throwable th) {
+			logger.error(th.getMessage(), th);
+			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
+					.body(IUtils.getFailedResponse(th.getMessage()));
+		}
+		return ResponseEntity.status(HttpStatus.CREATED).body(entities);
+	}
+
+	@RequestMapping(path = "/findByCloudName", method = RequestMethod.GET)
+	public ResponseEntity<Object> findAll(HttpServletRequest request,
+			String cloudName) {
+		Object entities = null;
+		try {
+			entities = repository.findByCloudName(cloudName,
+					Sort.by(Direction.ASC, "cloudName", "groupName", "entity"));
 			//entities = this.getSurveyEntityResult(request, list);
 		} catch (Throwable th) {
 			logger.error(th.getMessage(), th);

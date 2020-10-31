@@ -4,6 +4,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import com.synectiks.commons.entities.PSqlEntity;
+
 @Entity
 @Table(name = "ReqLog")
 public class ReqLog extends PSqlEntity {

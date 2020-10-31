@@ -51,7 +51,7 @@ import com.synectiks.commons.utils.IUtils;
 import com.synectiks.commons.utils.IUtils.CTypes;
 import com.synectiks.dynModel.DynamicModelApplication;
 import com.synectiks.dynModel.handlers.ClassConfig;
-import com.synectiks.dynModel.models.PSqlEntity;
+import com.synectiks.commons.entities.PSqlEntity;
 
 /**
  * @author Rajesh Upadhyay
@@ -529,7 +529,7 @@ public class Utils {
 				"import javax.persistence.SequenceGenerator;\n" +
 				"import javax.persistence.Table;\n\n" +
 				"import com.fasterxml.jackson.annotation.JsonIgnore;\n" +
-				"import com.synectiks.dynModel.models.PSqlEntity;\n" +
+				"import com.synectiks.commons.entities.PSqlEntity;\n" +
 				"\n");
 		return sb.toString();
 	}

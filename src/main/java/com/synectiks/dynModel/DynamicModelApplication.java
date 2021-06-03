@@ -1,10 +1,5 @@
 package com.synectiks.dynModel;
 
-import java.io.IOException;
-import java.util.Map;
-
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.boot.SpringApplication;
@@ -13,11 +8,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Primary;
-import org.springframework.data.elasticsearch.core.EntityMapper;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
-
-import com.synectiks.commons.utils.IUtils;
 
 @SpringBootApplication
 @EntityScan(basePackages = "com.synectiks")

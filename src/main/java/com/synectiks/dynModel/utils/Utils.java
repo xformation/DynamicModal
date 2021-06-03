@@ -9,14 +9,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.chrono.ThaiBuddhistDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -46,12 +40,12 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.util.StringUtils;
 
+import com.synectiks.commons.entities.PSqlEntity;
 import com.synectiks.commons.entities.SourceEntity;
 import com.synectiks.commons.utils.IUtils;
 import com.synectiks.commons.utils.IUtils.CTypes;
 import com.synectiks.dynModel.DynamicModelApplication;
 import com.synectiks.dynModel.handlers.ClassConfig;
-import com.synectiks.commons.entities.PSqlEntity;
 
 /**
  * @author Rajesh Upadhyay
@@ -127,6 +121,7 @@ public class Utils {
 			"	}\n" +
 			"}";
 
+	@SuppressWarnings("deprecation")
 	public static void main(String[] args) {
 		//java.text.NumberFormat nf = java.text.NumberFormat.getInstance();
 		try {
@@ -935,6 +930,7 @@ public class Utils {
 	 * @param clz
 	 * @return
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static <T> List<T> loadRepoGetAllList(Class<T> clz) {
 		List<T> entities = null;
 		if (!IUtils.isNull(clz)) {
@@ -956,6 +952,7 @@ public class Utils {
 	 * @param clz
 	 * @return
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static <T> T loadRepoGetById(Class<T> clz, Object id) {
 		T entity = null;
 		if (!IUtils.isNull(clz)) {
@@ -977,6 +974,7 @@ public class Utils {
 	 * @param entity
 	 * @return
 	 */
+	@SuppressWarnings("deprecation")
 	private static Object getExampleObj(Class<?> dynCls, Object entity) {
 		Object exObj = null;
 		if (hasUnicObjMethod(dynCls, UNIC_METHOD)) {

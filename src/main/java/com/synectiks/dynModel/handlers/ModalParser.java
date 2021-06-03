@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.synectiks.commons.entities.CloudEntity;
 import com.synectiks.commons.utils.IUtils;
 import com.synectiks.commons.utils.IUtils.CTypes;
